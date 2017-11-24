@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 comPort = "com26"
-doubleClick = 0.5
+doubleClick = 0.55
 baudRate = 9600
 
 import serial
@@ -9,34 +9,38 @@ import pyautogui
 import sys
 import time
 
-current_milli_time = lambda: int(round(time.time() * 1000)) 
+
 serial = serial.Serial(comPort, baudRate)
 
 i = 0
+nowtime = 0
+lastClicktime = 0
+
 
 while True:
 	
-    countClick = 0
-    if(serial.inWaiting()):
-        bytesToRead = serial.inWaiting()
-        data = str(serial.read(bytesToRead), errors='replace')
-        countClick += 1
-        time.sleep(doubleClick)
-        i += 1	
+	nowtime = int(round(time.time() * 1000)) 
+	dclicktime = nowtime-lastClicktime
 	
-        if(serial.inWaiting()):	
-            bytesToRead = serial.inWaiting()
-            data = str(serial.read(bytesToRead), errors='replace')
-            countClick += 1
+	if(lastClicktime>0 and (dclicktime>(doubleClick*1000))):
+		print ("{}. Last:{} Now:{} Diff:{}  ---> 下一頁".format(i, lastClicktime, nowtime, dclicktime))
+		lastClicktime = 0
+		i += 1		
+		pyautogui.typewrite(["right", "ctrlright"]) 
+		serial.flushInput()
 
-    if(countClick>1):
-        print ("{} 上一頁".format(i))            	
-        pyautogui.typewrite(["left", "ctrlleft"])
 		
-    if(countClick==1):
-        print ("{} 下一頁".format(i))
-        pyautogui.typewrite(["right", "ctrlright"])
-        serial.flushInput()
-        #time.sleep(doubleClick)
-        #serial.flushInput()	
-        
+	if(serial.inWaiting()):
+		serial.flushInput()
+		
+		if(lastClicktime==0):
+			lastClicktime = nowtime
+			
+		else:
+			dclicktime = nowtime-lastClicktime
+			if(dclicktime>200 and dclicktime<=(doubleClick*1000)):
+				print ("{}. Last:{} Now:{} Diff:{}  ---> 上一頁".format(i, lastClicktime, nowtime, nowtime-lastClicktime))
+				i += 1				
+				lastClicktime = 0
+				pyautogui.typewrite(["left", "ctrlleft"])
+				serial.flushInput()
