@@ -12,31 +12,31 @@ import time
 current_milli_time = lambda: int(round(time.time() * 1000)) 
 serial = serial.Serial(comPort, baudRate)
 
+i = 0
+
 while True:
 	
-	#data = ''
+    countClick = 0
     if(serial.inWaiting()):
         bytesToRead = serial.inWaiting()
         data = str(serial.read(bytesToRead), errors='replace')
-        print("First")	
-        time.sleep(0.3)
-        serial.flushInput()	
+        countClick += 1
         time.sleep(doubleClick)
-		
+        i += 1	
+	
         if(serial.inWaiting()):	
             bytesToRead = serial.inWaiting()
             data = str(serial.read(bytesToRead), errors='replace')
+            countClick += 1
 
-            print("Next")
-            print ("上一頁")            	
-            pyautogui.typewrite(["left", "ctrlleft"])
-			
-            
-                				
-        else:
-            print ("下一頁")	
-            pyautogui.typewrite(["right", "ctrlright"])
-			
+    if(countClick>1):
+        print ("{} 上一頁".format(i))            	
+        pyautogui.typewrite(["left", "ctrlleft"])
+		
+    if(countClick==1):
+        print ("{} 下一頁".format(i))
+        pyautogui.typewrite(["right", "ctrlright"])
+        serial.flushInput()
         #time.sleep(doubleClick)
         #serial.flushInput()	
         
