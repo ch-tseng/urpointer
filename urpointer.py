@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*- 
 
-comPort = "com26"
-doubleClick = 0.55
+comPort = "com26"   #PC的TTL2USB port
+doubleClick = 0.55  #double click 的間隔最長到幾秒?
+ignoreTime = 0.15  #double click間隔多少秒以下就視為一個click (避免誤觸)
 baudRate = 9600
 
 import serial
@@ -38,7 +39,7 @@ while True:
 			
 		else:
 			dclicktime = nowtime-lastClicktime
-			if(dclicktime>200 and dclicktime<=(doubleClick*1000)):
+			if(dclicktime>(ignoreTime*1000) and dclicktime<=(doubleClick*1000)):
 				print ("{}. Last:{} Now:{} Diff:{}  ---> 上一頁".format(i, lastClicktime, nowtime, nowtime-lastClicktime))
 				i += 1				
 				lastClicktime = 0
